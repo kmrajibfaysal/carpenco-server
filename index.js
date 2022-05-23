@@ -72,6 +72,23 @@ async function run() {
             const result = await orderCollection.insertOne(data);
             res.send(result);
         });
+
+        app.get('/order', async (req, res) => {
+            const { email } = req.query;
+            const query = { user: email };
+            const options = {};
+
+            const orders = await orderCollection.find(query, options).toArray();
+
+            res.send(orders);
+        });
+
+        app.delete('/order/:id', async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.send(result);
+        });
     } finally {
         //
     }
