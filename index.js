@@ -27,47 +27,58 @@ const client = new MongoClient(uri, {
 const productCollection = client.db('Carpenco').collection('products');
 const blogCollection = client.db('Carpenco').collection('blogs');
 const userCollection = client.db('Carpenco').collection('users');
+const orderCollection = client.db('Carpenco').collection('orders');
 
 async function run() {
-    await client.connect();
-    console.log('database connected');
+    try {
+        await client.connect();
+        console.log('database connected');
 
-    app.get('/products', async (req, res) => {
-        const products = await productCollection.find().toArray();
-        res.send(products);
-    });
+        app.get('/products', async (req, res) => {
+            const products = await productCollection.find().toArray();
+            res.send(products);
+        });
 
-    app.get('/products/:id', async (req, res) => {
-        const { id } = req.params;
-        const query = { _id: ObjectId(id) };
-        const product = await productCollection.findOne(query);
-        res.send(product);
-    });
+        app.get('/products/:id', async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: ObjectId(id) };
+            const product = await productCollection.findOne(query);
+            res.send(product);
+        });
 
-    app.get('/blogs', async (req, res) => {
-        const blogs = await blogCollection.find().toArray();
-        res.send(blogs);
-    });
+        app.get('/blogs', async (req, res) => {
+            const blogs = await blogCollection.find().toArray();
+            res.send(blogs);
+        });
 
-    // record user
+        // record user
 
-    app.put('/user/:email', async (req, res) => {
-        const { email } = req.params;
-        const user = req.body;
-        const filter = { email };
-        const options = { upsert: true };
-        const updateDoc = {
-            $set: user,
-        };
+        app.put('/user/:email', async (req, res) => {
+            const { email } = req.params;
+            const user = req.body;
+            const filter = { email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
 
-        const result = await userCollection.updateOne(filter, updateDoc, options);
-        const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET);
-        res.send({ result, token });
-    });
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET);
+            res.send({ result, token });
+        });
+
+        app.post('/order', async (req, res) => {
+            const data = req.body;
+            const result = await orderCollection.insertOne(data);
+            res.send(result);
+        });
+    } finally {
+        //
+    }
 }
 run().catch(console.dir);
 
 // Listener
 app.listen(port, () => {
-    console.log(`Doctors portal server running on port ${port}`);
+    console.log(`Carpenco server running on port ${port}`);
 });
