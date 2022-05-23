@@ -24,6 +24,7 @@ const client = new MongoClient(uri, {
 });
 
 const productCollection = client.db('Carpenco').collection('products');
+const blogCollection = client.db('Carpenco').collection('blogs');
 
 async function run() {
     await client.connect();
@@ -32,6 +33,10 @@ async function run() {
     app.get('/products', async (req, res) => {
         const products = await productCollection.find().toArray();
         res.send(products);
+    });
+    app.get('/blogs', async (req, res) => {
+        const blogs = await blogCollection.find().toArray();
+        res.send(blogs);
     });
 }
 run().catch(console.dir);
