@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -25,6 +26,7 @@ const client = new MongoClient(uri, {
 
 const productCollection = client.db('Carpenco').collection('products');
 const blogCollection = client.db('Carpenco').collection('blogs');
+const userCollection = client.db('Carpenco').collection('users');
 
 async function run() {
     await client.connect();
@@ -34,9 +36,33 @@ async function run() {
         const products = await productCollection.find().toArray();
         res.send(products);
     });
+
+    app.get('/products/:id', async (req, res) => {
+        const { id } = req.params;
+        const query = { _id: ObjectId(id) };
+        const product = await productCollection.findOne(query);
+        res.send(product);
+    });
+
     app.get('/blogs', async (req, res) => {
         const blogs = await blogCollection.find().toArray();
         res.send(blogs);
+    });
+
+    // record user
+
+    app.put('/user/:email', async (req, res) => {
+        const { email } = req.params;
+        const user = req.body;
+        const filter = { email };
+        const options = { upsert: true };
+        const updateDoc = {
+            $set: user,
+        };
+
+        const result = await userCollection.updateOne(filter, updateDoc, options);
+        const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET);
+        res.send({ result, token });
     });
 }
 run().catch(console.dir);
