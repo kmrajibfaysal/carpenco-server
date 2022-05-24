@@ -97,16 +97,28 @@ async function run() {
             const result = await orderCollection.deleteOne(query);
             res.send(result);
         });
-        app.post('/review', async (req, res) => {
+        app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
             res.send(result);
         });
 
-        app.get('/review', async (req, res) => {
+        app.get('/reviews', async (req, res) => {
             const reviews = await reviewCollection.find().toArray();
 
             res.send(reviews);
+        });
+
+        app.post('/users', async (req, res) => {
+            const newUser = req.body;
+
+            const filter = { email: newUser.email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: newUser,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
         });
     } finally {
         //
