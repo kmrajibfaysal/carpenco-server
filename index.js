@@ -29,6 +29,7 @@ const blogCollection = client.db('Carpenco').collection('blogs');
 const userCollection = client.db('Carpenco').collection('users');
 const orderCollection = client.db('Carpenco').collection('orders');
 const reviewCollection = client.db('Carpenco').collection('reviews');
+const newProductCollection = client.db('Carpenco').collection('newProducts');
 
 async function run() {
     try {
@@ -124,7 +125,21 @@ async function run() {
         app.get('/users/:email', async (req, res) => {
             const { email } = req.params;
             const query = { email };
-            const result = await userCollection.findOne(query)
+            const result = await userCollection.findOne(query);
+            res.send(result);
+        });
+        app.get('/users', async (req, res) => {
+            const result = await userCollection.find().toArray();
+            res.send(result);
+        });
+        app.get('/newProducts', async (req, res) => {
+            const result = await newProductCollection.find().toArray();
+            res.send(result);
+        });
+
+        app.post('/newProduct', async (req, res) => {
+            const product = req.body;
+            const result = await newProductCollection.insertOne(product);
             res.send(result);
         });
     } finally {
