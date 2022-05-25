@@ -133,6 +133,13 @@ async function run() {
             const result = await orderCollection.deleteOne(query);
             res.send(result);
         });
+        app.delete('/product/:id', async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: ObjectId(id) };
+            const result = await productCollection.deleteOne(query);
+            res.send(result);
+        });
+
         app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
@@ -168,13 +175,13 @@ async function run() {
             res.send(result);
         });
         app.get('/newProducts', async (req, res) => {
-            const result = await newProductCollection.find().toArray();
+            const result = await productCollection.find().toArray();
             res.send(result);
         });
 
         app.post('/newProduct', async (req, res) => {
             const product = req.body;
-            const result = await newProductCollection.insertOne(product);
+            const result = await productCollection.insertOne(product);
             res.send(result);
         });
     } finally {
